@@ -21,5 +21,10 @@ INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('MadEyeMoody', 'a
 INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('AlbusDumbledore', 'profesor', 'Gryffindor', 'Mestiza');
 INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('SybillTrelawney', 'profesora', 'Ravenclaw', 'Sangre pura');
 INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('FiliusFlitwick', 'profesor', 'Ravenclaw', 'Sangre mestiza');
+INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('LordVoldemort', 'mortífago', 'Slytherin', 'Mestiza');
+INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('LuciusMalfoy', 'mortífago', 'Slytherin', 'Sangre pura');
+INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('NarcissaMalfoy', 'mortífago', 'Slytherin', 'Sangre pura');
+INSERT INTO Personaje (nombre, rol, casa, ascendencia) VALUES ('PeterPettigrew', 'mortífago', 'Gryffindor', 'Sangre mestiza');
+
 
 
