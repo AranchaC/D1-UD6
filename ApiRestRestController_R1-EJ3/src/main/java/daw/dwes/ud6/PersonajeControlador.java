@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,20 +35,34 @@ public class PersonajeControlador {
     }//getAllPersonajes
 
     @GetMapping("/{id}")
-    public ResponseEntity<Personaje> getPersonajeById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(personajesRepositorio.findById(id).get());
+    public ResponseEntity<?> getPersonajeById(@PathVariable("id") Long id) {
+        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
+        if (existePersonaje != null) {
+        	return ResponseEntity.ok(existePersonaje);
+        } else {
+        	return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            		.body("El personaje con id " + id + " no existe");
+        }
     }//getId
 
     @PostMapping
-    public ResponseEntity<Personaje> crearPersonaje(@RequestBody Personaje personaje) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(personajesRepositorio.save(personaje));
+    public ResponseEntity<?> crearPersonaje(@RequestBody Personaje personaje) {
+    	Personaje existePersonaje = personajesRepositorio
+    			.findByNombre(personaje.getNombre());
+        if (existePersonaje != null) {
+        	return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+            		.body("El personaje con nombre " + personaje.getNombre() + 
+            				" ya existe.");
+        }
+    	return ResponseEntity.status(HttpStatus.CREATED)
+        		.body(personajesRepositorio.save(personaje));
     }//postCrearPersonaje
 
     @PutMapping("/{id}")
-    public ResponseEntity<Personaje> actualizarPersonaje(
+    public ResponseEntity<?> actualizarPersonaje(
     		@PathVariable("id") Long id, 
     		@RequestBody Personaje actualizadoPersonaje) {
-        Personaje existePersonaje = personajesRepositorio.findById(id).get();
+        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
         if (existePersonaje != null) {
             existePersonaje.setNombre(actualizadoPersonaje.getNombre());
             existePersonaje.setRol(actualizadoPersonaje.getRol());
@@ -56,13 +71,50 @@ public class PersonajeControlador {
             return ResponseEntity.ok(personajesRepositorio.save(existePersonaje));
         } else {
         	//si no existe el personaje:
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            		.body("El personaje con id " + id + " no existe");
         }
     }//putActualizar
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> borrarPersonaje(@PathVariable("id") Long id) {
-    	personajesRepositorio.deleteById(id);
-    	return ResponseEntity.noContent().build();
+    public ResponseEntity<?> borrarPersonaje(@PathVariable("id") Long id) {
+        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
+        if (existePersonaje != null) {
+            personajesRepositorio.deleteById(id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("El personaje con id " + id + " ha sido borrado.");
+        } else {
+            // Si no existe el personaje:
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("El personaje con id " + id + " no existe");
+        }
     }//deleteBorrar
-}
+    
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> actualizarAtributoPersonaje(
+    		@PathVariable("id") Long id, 
+    		@RequestBody Personaje actualizadoPersonaje) {
+        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
+        if (existePersonaje != null) {
+            if (actualizadoPersonaje.getNombre() != null) {
+                existePersonaje.setNombre(actualizadoPersonaje.getNombre());
+            }
+            if (actualizadoPersonaje.getRol() != null) {
+                existePersonaje.setRol(actualizadoPersonaje.getRol());
+            }
+            if (actualizadoPersonaje.getCasa() != null) {
+                existePersonaje.setCasa(actualizadoPersonaje.getCasa());
+            }
+            if (actualizadoPersonaje.getAscendencia() != null) {
+                existePersonaje.setAscendencia(actualizadoPersonaje.getAscendencia());
+            }
+            return ResponseEntity.ok(personajesRepositorio.save(existePersonaje));
+
+        } else {
+            // Si no existe el personaje:
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("El personaje con id " + id + " no existe");
+        }
+    }//patch
+
+}//main

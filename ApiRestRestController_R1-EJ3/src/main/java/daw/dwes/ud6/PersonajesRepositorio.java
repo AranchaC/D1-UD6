@@ -10,6 +10,6 @@ import org.springframework.data.repository.query.Param;
 public interface PersonajesRepositorio extends 
 	JpaRepository<Personaje,Long>{
 	
-	List<Personaje> findByNombre(String nombre);
+	Personaje findByNombre(String nombre);
 
 }

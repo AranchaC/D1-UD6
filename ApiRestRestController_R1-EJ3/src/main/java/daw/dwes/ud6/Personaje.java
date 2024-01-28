@@ -1,5 +1,7 @@
 package daw.dwes.ud6;
 
+import java.util.Objects;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,15 +9,15 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Personaje {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
-
-  private String nombre;
-  private String rol;
-  private String casa;
-  private String ascendencia;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	
+	private String nombre;
+	private String rol;
+	private String casa;
+	private String ascendencia;
   
 	public long getId() {
 		return id;
@@ -48,6 +50,24 @@ public class Personaje {
 	public void setAscendencia(String ascendencia) {
 		this.ascendencia = ascendencia;
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(nombre);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Personaje other = (Personaje) obj;
+		return Objects.equals(nombre, other.nombre);
+	}
+	
 
 
 }
