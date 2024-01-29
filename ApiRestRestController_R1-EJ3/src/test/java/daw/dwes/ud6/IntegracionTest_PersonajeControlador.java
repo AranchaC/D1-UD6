@@ -1,9 +1,15 @@
 package daw.dwes.ud6;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,22 +24,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-@RestController
-// para que haya punto de entrada general:
-@RequestMapping("/personajes")
-public class PersonajeControlador {
+@SpringBootTest
+public class IntegracionTest_PersonajeControlador {
 
-	private final PersonajesRepositorio personajesRepositorio;
+	@Autowired
+	private PersonajesRepositorio personajesRepositorio;
+	
+    @Test
+    void findAll() {
+        //var list = personajesRepositorio.findAll();
+        ResponseEntity<List<Personaje>> response = (ResponseEntity<List<Personaje>>) personajesRepositorio.findAll();
 
-    @Autowired
-    public PersonajeControlador(PersonajesRepositorio personajesRepositorio) {
-        this.personajesRepositorio = personajesRepositorio;
+
+        assertAll(
+                () -> assertNotNull(response),
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode())
+        );
     }
 
-    @GetMapping
-    public ResponseEntity<List<Personaje>> getTodosPersonajes() {
-        return ResponseEntity.ok(personajesRepositorio.findAll());
-    }//getAllPersonajes
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPersonajeById(@PathVariable("id") Long id) {
