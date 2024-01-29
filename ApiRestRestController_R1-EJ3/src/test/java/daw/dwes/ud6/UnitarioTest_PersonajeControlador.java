@@ -15,9 +15,11 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
-//@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class UnitarioTest_PersonajeControlador {
 	
     List<Personaje> personajes;
@@ -41,32 +43,25 @@ public class UnitarioTest_PersonajeControlador {
     @Mock
     private PersonajesRepositorio personajesRepositorio;
     
-   // @SuppressWarnings("deprecation")
     @BeforeEach
     //método que se ejecuta antes de cada prueba:
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         personajes = personajesRepositorio.findAll();
     }
     
     @Test
     void getTodosPersonajes() {
         // Lo que vamos a simular
-    	
-       /*personajes = Arrays.asList(
-                new Personaje("Harry Potter", "Estudiante", "Gryffindor", "Mestizo"),
-                new Personaje("Hermione Granger", "Estudiante", "Gryffindor", "Nacida de muggles"),
-                new Personaje("Ron Weasley", "Estudiante", "Gryffindor", "Mestizo")
-        );*/
         when(personajesRepositorio.findAll()).thenReturn(List.copyOf(personajes));
 
         // Test
-        ResponseEntity<List<Personaje>> responseEntity = personajeControlador.getTodosPersonajes();
+        ResponseEntity<List<Personaje>> responseEntity = 
+        		personajeControlador.getTodosPersonajes();
 
         // Comprobaciones
         assertAll(
-                () -> assertNotNull(responseEntity),
-                () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
+          () -> assertNotNull(responseEntity),
+          () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode())
         );
 
         // Verificamos que se ha llamado al método
@@ -94,13 +89,12 @@ public class UnitarioTest_PersonajeControlador {
         
         // Verificamos que se ha llamado al método
         verify(personajesRepositorio, times(1)).findById(id);
-    }//getSid
+    }//getSiId
     
 	@Test
     void getPersonajeById_No_ExisteId() {
 		Long id = -100L;
 		when(personajesRepositorio.findById(id)).thenReturn(Optional.empty());
-        //ResponseEntity<?> responseEntity = personajeControlador.getPersonajeById(id);
 
 		//salta la excepcion
 		//assertThrows para verificar que se lanza una ResponseStatusException
@@ -109,11 +103,11 @@ public class UnitarioTest_PersonajeControlador {
 	    });
 
 	    // Comprobamos que la excepción es la esperada
-	    assert (res.getMessage().contains("El personaje con id " + id + " no existe"));
+	    assert (res.getMessage().contains("El personaje con id " +
+	    		id + " no existe"));
 	    
         // Verificamos que se ha llamado al método
-        verify(personajesRepositorio, times(1)).findById(id);
-		
+        verify(personajesRepositorio, times(1)).findById(id);		
     }//getNoId
 
 	/*

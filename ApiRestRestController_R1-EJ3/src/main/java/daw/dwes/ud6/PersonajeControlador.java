@@ -41,10 +41,13 @@ public class PersonajeControlador {
         if (existePersonaje != null) {
         	return ResponseEntity.ok(existePersonaje);
         } else {
+        	//ej3 - línea return:
         	//return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El personaje con id " + id + " no existe");
-            //cambio la linea:
+            
+        	//ej5 - test - cambio la linea por:
         	//nos aseguramos de que lance una ResponseStatusException:
-        	throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El personaje con id " + id + " no existe");
+        	throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+        			"El personaje con id " + id + " no existe");
 
         }
     }//getId

@@ -3,11 +3,17 @@ package daw.dwes.ud6;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -26,107 +32,51 @@ import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest
 public class IntegracionTest_PersonajeControlador {
-
+	
 	@Autowired
-	private PersonajesRepositorio personajesRepositorio;
+    private PersonajeControlador personajeControlador;
 	
     @Test
-    void findAll() {
+    void getTodosPersonajes() {
         //var list = personajesRepositorio.findAll();
-        ResponseEntity<List<Personaje>> response = (ResponseEntity<List<Personaje>>) personajesRepositorio.findAll();
-
+        ResponseEntity<List<Personaje>> response = 
+        		personajeControlador.getTodosPersonajes();
 
         assertAll(
-                () -> assertNotNull(response),
-                () -> assertEquals(HttpStatus.OK, response.getStatusCode())
+          () -> assertNotNull(response),
+          () -> assertEquals(HttpStatus.OK, response.getStatusCode())
         );
-    }
+    }//findAll
 
+	@Test
+    void getPersonajeById_Si_ExisteId() {
+        Long id = 1L;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getPersonajeById(@PathVariable("id") Long id) {
-        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
-        if (existePersonaje != null) {
-        	return ResponseEntity.ok(existePersonaje);
-        } else {
-        	//return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El personaje con id " + id + " no existe");
-            //cambio la linea:
-        	//nos aseguramos de que lance una ResponseStatusException:
-        	throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El personaje con id " + id + " no existe");
+        ResponseEntity<?> responseEntity = 
+        		personajeControlador.getPersonajeById(id);
 
-        }
-    }//getId
+        // Assert: comprobaciones
+        assertAll(
+          () -> assertNotNull(responseEntity),
+          () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
+          () -> assertTrue(responseEntity.getBody() instanceof Personaje)
+        );       
+    }//getSiId
+	
+	@Test
+    void getPersonajeById_No_ExisteId() {
+		Long id = -100L;
 
-    @PostMapping
-    public ResponseEntity<?> crearPersonaje(@RequestBody Personaje personaje) {
-    	Personaje existePersonaje = personajesRepositorio
-    			.findByNombre(personaje.getNombre());
-        if (existePersonaje != null) {
-        	return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-            		.body("El personaje con nombre " + personaje.getNombre() + 
-            				" ya existe.");
-        }
-    	return ResponseEntity.status(HttpStatus.CREATED)
-        		.body(personajesRepositorio.save(personaje));
-    }//postCrearPersonaje
+		//assertThrows para verificar que se lanza una ResponseStatusException
+	    var res = assertThrows(ResponseStatusException.class, () -> {
+	        personajeControlador.getPersonajeById(id);
+	    });
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarPersonaje(
-    		@PathVariable("id") Long id, 
-    		@RequestBody Personaje actualizadoPersonaje) {
-        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
-        if (existePersonaje != null) {
-            existePersonaje.setNombre(actualizadoPersonaje.getNombre());
-            existePersonaje.setRol(actualizadoPersonaje.getRol());
-            existePersonaje.setCasa(actualizadoPersonaje.getCasa());
-            existePersonaje.setAscendencia(actualizadoPersonaje.getAscendencia());
-            return ResponseEntity.ok(personajesRepositorio.save(existePersonaje));
-        } else {
-        	//si no existe el personaje:
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            		.body("El personaje con id " + id + " no existe");
-        }
-    }//putActualizar
+	    // Comprobamos que la excepción es la esperada
+	    assert (res.getMessage().contains("El personaje con id " +
+	    		id + " no existe"));	
+    }//getNoId
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> borrarPersonaje(@PathVariable("id") Long id) {
-        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
-        if (existePersonaje != null) {
-            personajesRepositorio.deleteById(id);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("El personaje con id " + id + " ha sido borrado.");
-        } else {
-            // Si no existe el personaje:
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("El personaje con id " + id + " no existe");
-        }
-    }//deleteBorrar
-    
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> actualizarAtributoPersonaje(
-    		@PathVariable("id") Long id, 
-    		@RequestBody Personaje actualizadoPersonaje) {
-        Personaje existePersonaje = personajesRepositorio.findById(id).orElse(null);
-        if (existePersonaje != null) {
-            if (actualizadoPersonaje.getNombre() != null) {
-                existePersonaje.setNombre(actualizadoPersonaje.getNombre());
-            }
-            if (actualizadoPersonaje.getRol() != null) {
-                existePersonaje.setRol(actualizadoPersonaje.getRol());
-            }
-            if (actualizadoPersonaje.getCasa() != null) {
-                existePersonaje.setCasa(actualizadoPersonaje.getCasa());
-            }
-            if (actualizadoPersonaje.getAscendencia() != null) {
-                existePersonaje.setAscendencia(actualizadoPersonaje.getAscendencia());
-            }
-            return ResponseEntity.ok(personajesRepositorio.save(existePersonaje));
-
-        } else {
-            // Si no existe el personaje:
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("El personaje con id " + id + " no existe");
-        }
-    }//patch
+   
 
 }//main
